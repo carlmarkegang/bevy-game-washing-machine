@@ -1,4 +1,4 @@
-use crate::{load_level, setupcamera, MyLargeGizmos, Obstacles, ObstaclesRect};
+use crate::{setupcamera, Obstacles, ObstaclesRect};
 use bevy::prelude::*;
 
 #[derive(Component)]
@@ -67,9 +67,7 @@ pub fn player_controls(keyboard_input: Res<ButtonInput<KeyCode>>, mut query: Que
 
 pub fn player_movements(
     mut player_query: Query<(&mut Transform, &mut Player)>,
-    obstacle_query: Query<&mut Transform, (With<Obstacles>, Without<Player>)>,
 ) {
-    let mut player_move_off_screen = false;
     for (mut transform, mut player) in player_query.iter_mut() {
         transform.translation.x += player.vel_x;
 
@@ -89,22 +87,12 @@ pub fn player_movements(
         }
         transform.translation.y += player.vel_y;
 
-        if transform.translation.x > 220. {
-            transform.translation.y = 0.0;
-            transform.translation.x = -220.0;
-            player_move_off_screen = true;
-            player.map += 1;
+        if transform.translation.x > 200. {
+            transform.translation.x = 200.;
         }
-        if transform.translation.x < -220. {
-            transform.translation.y = 0.0;
-            transform.translation.x = 220.0;
-            player_move_off_screen = true;
-            player.map -= 1;
+        if transform.translation.x < -200. {
+            transform.translation.x = -200.;
         }
-    }
-
-    if player_move_off_screen {
-        load_level(obstacle_query);
     }
 }
 
@@ -134,8 +122,6 @@ pub fn rotate_circle(
             {
                 _player.vel_x_mod = 1.0;
             }
-
-            println!("{}", rotating_clothes.angle);
 
             transform.translation.x = player_transform.translation.x
                 + rotating_clothes.radius * rotating_clothes.angle.cos();

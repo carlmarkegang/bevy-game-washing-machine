@@ -6,14 +6,12 @@ mod setupplayer;
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
-        .init_gizmo_group::<MyLargeGizmos>()
         .add_systems(
             Startup,
             (
                 setupcamera::setup_camera,
                 setup_main,
                 setupplayer::setup_player,
-                set_line_width,
             ),
         )
         .add_systems(
@@ -31,7 +29,6 @@ fn main() {
                 setupplayer::player_controls,
                 setupplayer::player_movements,
                 backgroundpixles_movement,
-                change_background,
             )
                 .chain(),
         )
@@ -54,11 +51,6 @@ struct ObstaclesRect {
     size: f32,
 }
 
-#[derive(Default, Reflect, GizmoConfigGroup)]
-struct MyLargeGizmos {}
-
-#[derive(Component)]
-struct MapText;
 
 fn setup_main(
     mut commands: Commands,
@@ -124,18 +116,6 @@ fn setup_main(
             setupcamera::PIXEL_PERFECT_LAYERS,
         ));
     }
-
-    commands.spawn((
-        Text::new("Map"),
-        Node {
-            position_type: PositionType::Absolute,
-            top: Val::Px(12.),
-            left: Val::Px(12.),
-            ..default()
-        },
-        MapText,
-        setupcamera::PIXEL_PERFECT_LAYERS,
-    ));
 }
 
 fn backgroundpixles_movement(mut transforms: Query<&mut Transform, With<Backgroundpixles>>) {
@@ -150,48 +130,4 @@ fn generate_random_int(maxmin: std::ops::Range<i32>) -> i32 {
     let mut rng = rand::thread_rng();
     let generated_float = rng.gen_range(maxmin);
     generated_float
-}
-
-fn load_level(
-    mut transforms: Query<&mut Transform, (With<Obstacles>, Without<setupplayer::Player>)>,
-) {
-    for mut transform in &mut transforms {
-        transform.translation.x = generate_random_int(-200..200) as f32;
-    }
-}
-
-fn change_background(
-    mut players: Query<&mut setupplayer::Player>,
-    mut backgrounds: Query<&mut Transform, With<Background>>,
-    mut textquery: Query<&mut Text, With<MapText>>,
-) {
-    let mut current_map = 1;
-    for player in players.iter_mut() {
-        current_map = player.map;
-    }
-
-    for mut transform in &mut backgrounds {
-        transform.translation.z = 0.0 as f32;
-    }
-
-    let mut i = 1;
-    for mut transform in &mut backgrounds {
-        if current_map == i {
-            transform.translation.z = 1.0 as f32;
-        }
-        i += 1;
-    }
-
-    for mut span in textquery.iter_mut() {
-        let value = "Map".to_string() + &current_map.to_string();
-        **span = format!("{value}");
-    }
-}
-
-fn set_line_width(mut config_store: ResMut<GizmoConfigStore>) {
-    let (config, _) = config_store.config_mut::<DefaultGizmoConfigGroup>();
-    config.line_width = 1.;
-
-    let (my_config, _) = config_store.config_mut::<MyLargeGizmos>();
-    my_config.line_width = 10.;
 }
