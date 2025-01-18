@@ -5,6 +5,7 @@ use bevy::prelude::*;
 pub struct Player {
     pub vel_x: f32,
     pub vel_y: f32,
+    pub vel_x_mod: f32,
     pub jumping: bool,
     pub size: f32,
     pub map: i32,
@@ -31,6 +32,7 @@ pub fn setup_player(
         Player {
             vel_x: 0.0,
             vel_y: 0.0,
+            vel_x_mod: 0.0,
             jumping: false,
             size: player_size,
             map: 1,
@@ -41,7 +43,7 @@ pub fn setup_player(
     let circle_radius = 5.0;
     commands.spawn((
         Mesh2d(meshes.add(Circle::default())),
-        MeshMaterial2d(materials.add(Color::srgb(1.0, 0.5, 0.5))),
+        MeshMaterial2d(materials.add(Color::srgb(0.34, 0.72, 0.65))),
         Transform::from_translation(Vec3::new(0. as f32, 200. as f32, 12.0))
             .with_scale(Vec2::splat(circle_radius).extend(2.)),
         RotatingClothes {
@@ -54,12 +56,10 @@ pub fn setup_player(
 
 pub fn player_controls(keyboard_input: Res<ButtonInput<KeyCode>>, mut query: Query<&mut Player>) {
     let jump_power = 3.0;
-    let speed = 2.0;
     for mut player in query.iter_mut() {
-
         if keyboard_input.pressed(KeyCode::ArrowUp) && player.jumping == false {
             player.vel_y = jump_power;
-            player.vel_x = player.vel_x * 10.0;
+            player.vel_x = player.vel_x_mod * 3.0;
             player.jumping = true;
         }
     }
@@ -72,6 +72,15 @@ pub fn player_movements(
     let mut player_move_off_screen = false;
     for (mut transform, mut player) in player_query.iter_mut() {
         transform.translation.x += player.vel_x;
+
+        if (player.vel_x > 0.) {
+            player.vel_x -= 0.1;
+        }
+
+        if (player.vel_x < 0.) {
+            player.vel_x += 0.1;
+        }
+
         if transform.translation.y >= -91.0 {
             player.vel_y -= 0.1;
         } else {
@@ -101,25 +110,37 @@ pub fn player_movements(
 
 pub fn rotate_circle(
     time: Res<Time>,
-    mut query: Query<(&mut Transform, &mut RotatingClothes), (With<RotatingClothes>, Without<Player>)>,
+    mut query: Query<
+        (&mut Transform, &mut RotatingClothes),
+        (With<RotatingClothes>, Without<Player>),
+    >,
     mut player_query: Query<(&mut Transform, &mut Player)>,
 ) {
     for (player_transform, mut _player) in player_query.iter_mut() {
         for (mut transform, mut rotating_clothes) in query.iter_mut() {
-            rotating_clothes.angle += time.delta_secs() * 15.0;
+            rotating_clothes.angle += time.delta_secs() * 10.0;
             rotating_clothes.angle %= std::f32::consts::PI * 2.0;
 
-            if(rotating_clothes.angle > 1.5 && rotating_clothes.angle < 3.0){
-                _player.vel_x = -0.1;
+            if (rotating_clothes.angle > 1.5
+                && rotating_clothes.angle < 3.
+                && _player.jumping == false)
+            {
+                _player.vel_x_mod = -1.0;
             }
 
-            if(rotating_clothes.angle > 0.0 && rotating_clothes.angle < 1.5){
-                _player.vel_x = 0.1;
+            if (rotating_clothes.angle > 0.0
+                && rotating_clothes.angle < 1.5
+                && _player.jumping == false)
+            {
+                _player.vel_x_mod = 1.0;
             }
 
-            println!("{}",rotating_clothes.angle);
-            transform.translation.x = player_transform.translation.x + rotating_clothes.radius * rotating_clothes.angle.cos();
-            transform.translation.y = player_transform.translation.y + rotating_clothes.radius * rotating_clothes.angle.sin();
+            println!("{}", rotating_clothes.angle);
+
+            transform.translation.x = player_transform.translation.x
+                + rotating_clothes.radius * rotating_clothes.angle.cos();
+            transform.translation.y = player_transform.translation.y
+                + rotating_clothes.radius * rotating_clothes.angle.sin();
         }
     }
 }
