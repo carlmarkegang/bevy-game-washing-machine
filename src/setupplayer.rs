@@ -11,8 +11,9 @@ pub struct Player {
 }
 
 #[derive(Component)]
-pub struct Segment {
-    pub size: f32,
+pub struct RotatingClothes {
+    pub radius: f32, // Distance from the player
+    pub angle: f32,  // Current angle of rotation
 }
 
 pub fn setup_player(
@@ -26,12 +27,8 @@ pub fn setup_player(
     commands.spawn((
         Mesh2d(meshes.add(Circle::default())),
         MeshMaterial2d(materials.add(Color::srgb(1.0, 0.5, 0.5))),
-        Transform::from_translation(Vec3::new(
-            0. as f32,
-            200. as f32,
-            10.0,
-        ))
-        .with_scale(Vec2::splat(player_size).extend(1.)),
+        Transform::from_translation(Vec3::new(0. as f32, 200. as f32, 10.0))
+            .with_scale(Vec2::splat(player_size).extend(1.)),
         Player {
             vel_x: 0.0,
             vel_y: 0.0,
@@ -42,8 +39,19 @@ pub fn setup_player(
         setupcamera::PIXEL_PERFECT_LAYERS,
     ));
 
+    let circle_radius = 50.0;
+    commands.spawn((
+        Mesh2d(meshes.add(Circle::default())),
+        MeshMaterial2d(materials.add(Color::srgb(1.0, 0.5, 0.5))),
+        Transform::from_translation(Vec3::new(0. as f32, 200. as f32, 10.0))
+            .with_scale(Vec2::splat(player_size).extend(1.)),
+        RotatingClothes {
+            radius: circle_radius,
+            angle: 0.0,
+        },
+        setupcamera::PIXEL_PERFECT_LAYERS,
+    ));
 }
-
 
 pub fn player_controls(keyboard_input: Res<ButtonInput<KeyCode>>, mut query: Query<&mut Player>) {
     let jump_power = 3.0;
@@ -98,6 +106,22 @@ pub fn player_movements(
     }
 }
 
+pub fn rotate_circle(
+    time: Res<Time>,
+    mut query: Query<(&mut Transform, &mut RotatingClothes)>,
+    mut player_query: Query<(&mut Transform, &mut Player)>,
+) {
+    for (mut player_transform, mut player) in player_query.iter_mut() {
+        for (mut transform, mut rotating_clothes) in query.iter_mut() {
+            transform.translation.x = player_transform.translation.x;
+            transform.translation.x = player_transform.translation.y;
+            rotating_clothes.angle += time.delta_secs() * 2.0;
+            rotating_clothes.angle = rotating_clothes.angle % (std::f32::consts::PI * 2.0);
+            transform.translation.x = rotating_clothes.radius * rotating_clothes.angle.cos();
+            transform.translation.y = rotating_clothes.radius * rotating_clothes.angle.sin();
+        }
+    }
+}
 
 pub fn collision_check_player(
     mut query_player: Query<(&mut Transform, &mut Player)>,
@@ -124,7 +148,6 @@ pub fn collision_check_player(
         }
     }
 }
-
 
 // Utility function to constrain a value between a minimum and maximum
 fn constrain(value: f32, min: f32, max: f32) -> f32 {

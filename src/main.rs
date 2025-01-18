@@ -16,7 +16,13 @@ fn main() {
                 set_line_width,
             ),
         )
-        .add_systems(Update, setupcamera::fit_canvas)
+        .add_systems(
+            Update,
+            (
+                setupcamera::fit_canvas, 
+                //setupplayer::rotate_circle
+            ),
+        )
         .add_systems(
             FixedUpdate,
             (
@@ -102,100 +108,8 @@ fn setup_main(
         ));
     }
 
-    // Obstacle pattern
-    let mut position_x = -200.0;
-    let mut position_y = 0.0;
-    for _i in 0..16 {
-        let random_number = generate_random_int(1..3);
-        let obstacle_size = 20.0 as f32;
-        position_y = generate_random_int(-100..100) as f32;
-        if random_number == 1 {
-            commands.spawn((
-                Mesh2d(meshes.add(Circle::default())),
-                MeshMaterial2d(materials.add(Color::srgb(0.1, 0.1, 0.1))),
-                Transform::from_xyz(position_x + 20.0 as f32, position_y + 20.0 as f32, 4.)
-                    .with_scale(Vec3::splat(obstacle_size)),
-                Obstacles {
-                    size: obstacle_size,
-                },
-                setupcamera::PIXEL_PERFECT_LAYERS,
-            ));
-            commands.spawn((
-                Mesh2d(meshes.add(Circle::default())),
-                MeshMaterial2d(materials.add(Color::srgb(0.1, 0.1, 0.1))),
-                Transform::from_xyz(position_x + 40.0 as f32, position_y + 20.0 as f32, 4.)
-                    .with_scale(Vec3::splat(obstacle_size)),
-                Obstacles {
-                    size: obstacle_size,
-                },
-                setupcamera::PIXEL_PERFECT_LAYERS,
-            ));
-            commands.spawn((
-                Mesh2d(meshes.add(Circle::default())),
-                MeshMaterial2d(materials.add(Color::srgb(0.1, 0.1, 0.1))),
-                Transform::from_xyz(position_x + 40.0 as f32, position_y + 40.0 as f32, 4.)
-                    .with_scale(Vec3::splat(obstacle_size)),
-                Obstacles {
-                    size: obstacle_size,
-                },
-                setupcamera::PIXEL_PERFECT_LAYERS,
-            ));
-        }
-
-        if random_number == 2 {
-            commands.spawn((
-                Mesh2d(meshes.add(Circle::default())),
-                MeshMaterial2d(materials.add(Color::srgb(0.1, 0.1, 0.1))),
-                Transform::from_xyz(position_x + 20.0 as f32, position_y + 20.0 as f32, 4.)
-                    .with_scale(Vec3::splat(obstacle_size)),
-                Obstacles {
-                    size: obstacle_size,
-                },
-                setupcamera::PIXEL_PERFECT_LAYERS,
-            ));
-            commands.spawn((
-                Mesh2d(meshes.add(Circle::default())),
-                MeshMaterial2d(materials.add(Color::srgb(0.1, 0.1, 0.1))),
-                Transform::from_xyz(position_x + 20.0 as f32, position_y + 40.0 as f32, 4.)
-                    .with_scale(Vec3::splat(obstacle_size)),
-                Obstacles {
-                    size: obstacle_size,
-                },
-                setupcamera::PIXEL_PERFECT_LAYERS,
-            ));
-        }
-
-        if random_number == 4 {
-            commands.spawn((
-                Mesh2d(meshes.add(Circle::default())),
-                MeshMaterial2d(materials.add(Color::srgb(0.1, 0.1, 0.1))),
-                Transform::from_xyz(position_x + 0.0 as f32, position_y + 0.0 as f32, 4.)
-                    .with_scale(Vec3::splat(obstacle_size)),
-                Obstacles {
-                    size: obstacle_size,
-                },
-                setupcamera::PIXEL_PERFECT_LAYERS,
-            ));
-            commands.spawn((
-                Mesh2d(meshes.add(Circle::default())),
-                MeshMaterial2d(materials.add(Color::srgb(0.1, 0.1, 0.1))),
-                Transform::from_xyz(position_x + 0.0 as f32, position_y - 10.0 as f32, 4.)
-                    .with_scale(Vec3::splat(obstacle_size)),
-                Obstacles {
-                    size: obstacle_size,
-                },
-                setupcamera::PIXEL_PERFECT_LAYERS,
-            ));
-        }
-
-        position_x += 100.0;
-        if position_x > 100.0 {
-            position_x = -200.
-        }
-    }
-
     // Obstacles Rect
-    for _i in 0..0 {
+    for _i in 0..5 {
         let obstacle_size = Vec3::new(20.0, 20.0, 1.0);
         commands.spawn((
             Mesh2d(meshes.add(Rectangle::default())),
