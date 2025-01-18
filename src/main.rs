@@ -20,7 +20,7 @@ fn main() {
             Update,
             (
                 setupcamera::fit_canvas, 
-                //setupplayer::rotate_circle
+                setupplayer::rotate_circle
             ),
         )
         .add_systems(
