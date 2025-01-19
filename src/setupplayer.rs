@@ -24,10 +24,10 @@ pub fn setup_player(
     asset_server: Res<AssetServer>,
 ) {
     // Player
-    let player_size: f32 = 30.;
+    let player_size: f32 = 20.;
 
     commands.spawn((
-        Sprite::from_image(asset_server.load("pixel/washer.png")),
+        Sprite::from_image(asset_server.load("pixel/washer3.png")),
         Transform::from_translation(Vec3::new(0. as f32, 200. as f32, 10.0)),
         Player {
             vel_x: 0.0,
@@ -40,7 +40,7 @@ pub fn setup_player(
         setupcamera::PIXEL_PERFECT_LAYERS,
     ));
 
-    let circle_radius = 40.0;
+    let circle_radius = 20.0;
     commands.spawn((
         Mesh2d(meshes.add(Circle::default())),
         MeshMaterial2d(materials.add(Color::srgb(1.0, 1.0, 1.0))),
@@ -65,11 +65,10 @@ pub fn setup_player(
         },
         setupcamera::PIXEL_PERFECT_LAYERS,
     ));
-
 }
 
 pub fn player_controls(keyboard_input: Res<ButtonInput<KeyCode>>, mut query: Query<&mut Player>) {
-    let jump_power = 3.0;
+    let jump_power = 4.0;
     for mut player in query.iter_mut() {
         if keyboard_input.pressed(KeyCode::ArrowUp) && player.jumping == false {
             if player.vel_x_mod != 0.0 {
@@ -132,10 +131,8 @@ pub fn rotate_circle(
                 if transform.translation.y > player_transform.translation.y {
                     if transform.translation.x > player_transform.translation.x {
                         _player.vel_x_mod = 1.0;
-                        println!("1.0");
                     } else if transform.translation.x < player_transform.translation.x {
                         _player.vel_x_mod = -1.0;
-                        println!("-1.0");
                     } else {
                         _player.vel_x_mod = 0.0;
                     }

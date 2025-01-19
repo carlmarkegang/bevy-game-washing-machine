@@ -101,20 +101,23 @@ fn setup_main(
     }
 
     // Obstacles Rect
-    for _i in 0..5 {
-        let obstacle_size = Vec3::new(20.0, 20.0, 1.0);
+    pos_x = -200.0;
+    let obstacle_size = Vec3::new(10.0, 10.0, 1.0);
+    for _i in 0..10 {
+       
         commands.spawn((
             Mesh2d(meshes.add(Rectangle::default())),
             MeshMaterial2d(materials.add(Color::srgb(0.1, 0.1, 0.1))),
             Transform::from_xyz(
-                generate_random_int(-200..200) as f32,
-                generate_random_int(-40..50) as f32,
+                pos_x,
+                -60.0,
                 4.,
             )
             .with_scale(obstacle_size),
-            ObstaclesRect { size: 20.0 },
+            ObstaclesRect { size: 10.0 },
             setupcamera::PIXEL_PERFECT_LAYERS,
         ));
+        pos_x += 10.0;
     }
 }
 
