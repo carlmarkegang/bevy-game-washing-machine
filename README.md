@@ -5,7 +5,7 @@ A prototype game to test the functionality of Bevy and Rust
  * Setup new folder: cd bevy_game_creature + cargo init + cargo add bevy + cargo add rand
  * For exe: cargo run
  * For web: cargo run --target wasm32-unknown-unknown 
- * Remove dependancys and lock file: cargo clean
+ * Remove dependencies and lock file: cargo clean
  * cargo build --release
  * cargo build --release --target wasm32-unknown-unknown
  * cargo fix  - Auto clean project
@@ -18,5 +18,5 @@ A prototype game to test the functionality of Bevy and Rust
 ## Auto build on update
 cargo watch -x run
 
-## Compile times
+## Improve compile during development using dynamic linking
 cargo run --features bevy/dynamic_linking

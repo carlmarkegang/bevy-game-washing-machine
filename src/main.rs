@@ -81,7 +81,7 @@ fn setup_main(
         ));
     }
 
-    // Obstacles
+    // Ground
     let obstacle_size = 20.0;
     let mut pos_x = -200.0;
     for _i in 0..30 {
