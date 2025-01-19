@@ -82,22 +82,22 @@ fn setup_main(
     }
 
     // Obstacles
-    for _i in 0..80 {
-        let obstacle_size = generate_random_int(30..50) as f32;
+    let obstacle_size = 20.0;
+    let mut pos_x = -200.0;
+    for _i in 0..30 {
         commands.spawn((
-            Mesh2d(meshes.add(Circle::default())),
+            Mesh2d(meshes.add(Rectangle::default())),
             MeshMaterial2d(materials.add(Color::srgb(0.1, 0.1, 0.1))),
             Transform::from_xyz(
-                generate_random_int(-200..200) as f32,
-                generate_random_int(-100..-80) as f32,
+                pos_x,
+                -100.0,
                 4.,
             )
             .with_scale(Vec3::splat(obstacle_size)),
-            Obstacles {
-                size: obstacle_size,
-            },
+            ObstaclesRect { size: 20.0 },
             setupcamera::PIXEL_PERFECT_LAYERS,
         ));
+        pos_x += 20.0;
     }
 
     // Obstacles Rect

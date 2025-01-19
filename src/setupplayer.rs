@@ -1,4 +1,4 @@
-use crate::{setupcamera, Obstacles, ObstaclesRect};
+use crate::{generate_random_int, setupcamera, Obstacles, ObstaclesRect};
 use bevy::prelude::*;
 
 #[derive(Component)]
@@ -40,6 +40,19 @@ pub fn setup_player(
         setupcamera::PIXEL_PERFECT_LAYERS,
     ));
 
+    let circle_radius = 40.0;
+    commands.spawn((
+        Mesh2d(meshes.add(Circle::default())),
+        MeshMaterial2d(materials.add(Color::srgb(1.0, 1.0, 1.0))),
+        Transform::from_translation(Vec3::new(0. as f32, 200. as f32, 12.0))
+            .with_scale(Vec2::splat(5.).extend(1.)),
+        RotatingClothes {
+            radius: circle_radius,
+            angle: 0.0,
+        },
+        setupcamera::PIXEL_PERFECT_LAYERS,
+    ));
+
     let circle_radius = 5.0;
     commands.spawn((
         Mesh2d(meshes.add(Circle::default())),
@@ -52,25 +65,24 @@ pub fn setup_player(
         },
         setupcamera::PIXEL_PERFECT_LAYERS,
     ));
+
 }
 
 pub fn player_controls(keyboard_input: Res<ButtonInput<KeyCode>>, mut query: Query<&mut Player>) {
     let jump_power = 3.0;
     for mut player in query.iter_mut() {
         if keyboard_input.pressed(KeyCode::ArrowUp) && player.jumping == false {
-            player.vel_y = jump_power;
-            player.vel_x = player.vel_x_mod * 3.0;
-            player.jumping = true;
+            if player.vel_x_mod != 0.0 {
+                player.vel_y = jump_power;
+                player.vel_x = player.vel_x_mod * 3.0;
+                player.jumping = true;
+            }
         }
     }
 }
 
-pub fn player_movements(
-    mut player_query: Query<(&mut Transform, &mut Player)>,
-) {
+pub fn player_movements(mut player_query: Query<(&mut Transform, &mut Player)>) {
     for (mut transform, mut player) in player_query.iter_mut() {
-        transform.translation.x += player.vel_x;
-
         if (player.vel_x > 0.) {
             player.vel_x -= 0.1;
         }
@@ -78,6 +90,7 @@ pub fn player_movements(
         if (player.vel_x < 0.) {
             player.vel_x += 0.1;
         }
+        transform.translation.x += player.vel_x;
 
         if transform.translation.y >= -91.0 {
             player.vel_y -= 0.1;
@@ -85,7 +98,8 @@ pub fn player_movements(
             transform.translation.y = -91.0;
             player.jumping = false;
         }
-        transform.translation.y += player.vel_y;
+
+        transform.translation.y += player.vel_y + generate_random_int(-2..2) as f32;
 
         if transform.translation.x > 200. {
             transform.translation.x = 200.;
@@ -106,27 +120,31 @@ pub fn rotate_circle(
 ) {
     for (player_transform, mut _player) in player_query.iter_mut() {
         for (mut transform, mut rotating_clothes) in query.iter_mut() {
-            rotating_clothes.angle += time.delta_secs() * 10.0;
+            rotating_clothes.angle += time.delta_secs() * 5.0;
             rotating_clothes.angle %= std::f32::consts::PI * 2.0;
-
-            if (rotating_clothes.angle > 1.5
-                && rotating_clothes.angle < 3.
-                && _player.jumping == false)
-            {
-                _player.vel_x_mod = -1.0;
-            }
-
-            if (rotating_clothes.angle > 0.0
-                && rotating_clothes.angle < 1.5
-                && _player.jumping == false)
-            {
-                _player.vel_x_mod = 1.0;
-            }
 
             transform.translation.x = player_transform.translation.x
                 + rotating_clothes.radius * rotating_clothes.angle.cos();
             transform.translation.y = player_transform.translation.y
                 + rotating_clothes.radius * rotating_clothes.angle.sin();
+
+            if _player.jumping == false {
+                if transform.translation.y > player_transform.translation.y {
+                    if transform.translation.x > player_transform.translation.x {
+                        _player.vel_x_mod = 1.0;
+                        println!("1.0");
+                    } else if transform.translation.x < player_transform.translation.x {
+                        _player.vel_x_mod = -1.0;
+                        println!("-1.0");
+                    } else {
+                        _player.vel_x_mod = 0.0;
+                    }
+                } else {
+                    _player.vel_x_mod = 0.0;
+                }
+            } else {
+                _player.vel_x_mod = 0.0;
+            }
         }
     }
 }
