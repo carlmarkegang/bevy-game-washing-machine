@@ -82,11 +82,11 @@ pub fn player_controls(keyboard_input: Res<ButtonInput<KeyCode>>, mut query: Que
 
 pub fn player_movements(mut player_query: Query<(&mut Transform, &mut Player)>) {
     for (mut transform, mut player) in player_query.iter_mut() {
-        if (player.vel_x > 0.) {
+        if player.vel_x > 0. {
             player.vel_x -= 0.1;
         }
 
-        if (player.vel_x < 0.) {
+        if player.vel_x < 0. {
             player.vel_x += 0.1;
         }
         transform.translation.x += player.vel_x;

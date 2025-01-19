@@ -1,4 +1,5 @@
 # bevy-game-washing-machine
+A prototype game to test the functionality of Bevy and Rust
 
 ## Commands
  * Setup new folder: cd bevy_game_creature + cargo init + cargo add bevy + cargo add rand
